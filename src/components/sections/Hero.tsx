@@ -21,7 +21,7 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             transition={{ duration: 0.6 }}
             className="mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-white text-sm font-medium border border-accent/30">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-foreground text-sm font-medium border border-accent/30">
               <Zap className="w-4 h-4 text-accent" />
               Soluții digitale pentru afaceri moderne
             </span>
@@ -31,10 +31,10 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight"
           >
             Digitalizăm afacerea ta cu{" "}
-            <span className="text-white font-extrabold">soluții web</span> și software
+            <span className="text-accent font-extrabold">soluții web</span> și software
             personalizat
           </motion.h1>
 
@@ -42,7 +42,7 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-white/80 mb-10 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
           >
             Servicii IT complete pentru IMM-uri, startup-uri și antreprenori.
             Transformăm ideile în produse digitale de succes.
@@ -65,7 +65,7 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             <Button
               variant="outline"
               size="lg"
-              className="border-white/50 text-white hover:bg-white/10 hover:border-white px-8 py-6 text-base"
+              className="border-border text-foreground hover:bg-secondary px-8 py-6 text-base"
               asChild
             >
               <a href="#servicii">Vezi serviciile</a>
@@ -86,10 +86,10 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             ].map((item, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border"
               >
                 <item.icon className="w-4 h-4 text-accent" />
-                <span className="text-sm text-white/90">{item.label}</span>
+                <span className="text-sm text-foreground">{item.label}</span>
               </div>
             ))}
           </motion.div>
@@ -106,9 +106,9 @@ const Hero = ({ onOpenForm }: HeroProps) => {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2"
+          className="w-6 h-10 rounded-full border-2 border-border flex items-start justify-center p-2"
         >
-          <div className="w-1 h-2 rounded-full bg-white/50" />
+          <div className="w-1 h-2 rounded-full bg-muted-foreground" />
         </motion.div>
       </motion.div>
     </section>
