@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Code2, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/hero-bg.svg";
 
 interface HeroProps {
   onOpenForm: () => void;
@@ -11,15 +10,8 @@ const Hero = ({ onOpenForm }: HeroProps) => {
   return (
     <section
       id="acasa"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
     >
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      />
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30" />
 
       <div className="container mx-auto relative z-10 pt-20">
         <div className="max-w-4xl mx-auto text-center">
