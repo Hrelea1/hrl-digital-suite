@@ -15,7 +15,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header onOpenForm={() => setIsFormOpen(true)} />
       <Hero onOpenForm={() => setIsFormOpen(true)} />
-      <Services />
+      <Services onOpenForm={() => setIsFormOpen(true)} />
       <About />
       <Pricing onOpenForm={() => setIsFormOpen(true)} />
       <Contact />
