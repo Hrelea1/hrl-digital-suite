@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Send, Check } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Send, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,19 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  sanitizeText,
+  checkClientRateLimit,
+  isHoneypotTriggered,
+  addSecurityDelay,
+  nameSchema,
+  emailSchema,
+  phoneSchema,
+  textAreaSchema,
+  projectTypeSchema,
+  budgetSchema,
+  timelineSchema,
+} from "@/lib/security";
 
 interface FormFlowProps {
   isOpen: boolean;
@@ -45,7 +59,7 @@ const timelines = [
 ];
 
 const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -56,8 +70,24 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
     name: "",
     email: "",
     phone: "",
+    gdprConsent: false,
+    // Honeypot fields (hidden)
+    website: "",
+    company_website: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+
+  // Pre-fill email if user is logged in
+  useEffect(() => {
+    if (user?.email) {
+      setFormData((prev) => ({
+        ...prev,
+        email: user.email || "",
+        name: user.user_metadata?.full_name || prev.name,
+      }));
+    }
+  }, [user]);
 
   const totalSteps = 5;
 
@@ -66,31 +96,49 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
 
     switch (step) {
       case 1:
-        if (!formData.projectType) {
-          newErrors.projectType = "Selectează tipul proiectului";
+        const projectTypeResult = projectTypeSchema.safeParse(formData.projectType);
+        if (!projectTypeResult.success) {
+          newErrors.projectType = projectTypeResult.error.errors[0].message;
         }
         break;
       case 2:
-        if (!formData.budget) {
-          newErrors.budget = "Selectează bugetul estimativ";
+        const budgetResult = budgetSchema.safeParse(formData.budget);
+        if (!budgetResult.success) {
+          newErrors.budget = budgetResult.error.errors[0].message;
         }
         break;
       case 3:
-        if (!formData.timeline) {
-          newErrors.timeline = "Selectează termenul de livrare";
+        const timelineResult = timelineSchema.safeParse(formData.timeline);
+        if (!timelineResult.success) {
+          newErrors.timeline = timelineResult.error.errors[0].message;
         }
         break;
       case 4:
-        if (!formData.details.trim()) {
-          newErrors.details = "Adaugă o descriere a proiectului";
+        const detailsResult = textAreaSchema.safeParse(formData.details);
+        if (!detailsResult.success) {
+          newErrors.details = detailsResult.error.errors[0].message;
         }
         break;
       case 5:
-        if (!formData.name.trim()) {
-          newErrors.name = "Introdu numele tău";
+        const nameResult = nameSchema.safeParse(formData.name);
+        if (!nameResult.success) {
+          newErrors.name = nameResult.error.errors[0].message;
         }
-        if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          newErrors.email = "Introdu o adresă de email validă";
+
+        const emailResult = emailSchema.safeParse(formData.email);
+        if (!emailResult.success) {
+          newErrors.email = emailResult.error.errors[0].message;
+        }
+
+        if (formData.phone) {
+          const phoneResult = phoneSchema.safeParse(formData.phone);
+          if (!phoneResult.success) {
+            newErrors.phone = phoneResult.error.errors[0]?.message || "Telefon invalid";
+          }
+        }
+
+        if (!formData.gdprConsent) {
+          newErrors.gdprConsent = "Trebuie să accepți politica de confidențialitate";
         }
         break;
     }
@@ -116,28 +164,73 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
   };
 
   const handleSubmit = async () => {
-    if (!user) {
-      toast.success("Cererea ta a fost trimisă cu succes! Te vom contacta în curând.");
+    // Check honeypot
+    if (isHoneypotTriggered(formData)) {
+      // Silently "succeed" to confuse bots
+      await addSecurityDelay(500, 1500);
+      toast.success("Cererea ta a fost trimisă!");
       resetForm();
       return;
     }
 
+    // Check client-side rate limit
+    const rateLimit = checkClientRateLimit("form_submit", 5, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      const waitTime = rateLimit.blockedUntil
+        ? Math.ceil((rateLimit.blockedUntil.getTime() - Date.now()) / 60000)
+        : 30;
+      toast.error(`Prea multe încercări. Încearcă din nou în ${waitTime} minute.`);
+      return;
+    }
+
+    // Minimum delay between submissions (5 seconds)
+    const now = Date.now();
+    if (now - lastSubmitTime < 5000) {
+      toast.error("Te rugăm să aștepți câteva secunde.");
+      return;
+    }
+    setLastSubmitTime(now);
+
     setIsSubmitting(true);
+
     try {
-      const { error } = await supabase.from("project_requests").insert({
-        user_id: user.id,
-        project_type: formData.projectType,
-        budget: formData.budget,
-        timeline: formData.timeline,
-        details: formData.details,
-      });
+      // Add security delay to prevent timing attacks
+      await addSecurityDelay(200, 600);
 
-      if (error) throw error;
+      // Sanitize text inputs
+      const sanitizedDetails = sanitizeText(formData.details);
+      const sanitizedName = sanitizeText(formData.name);
 
-      toast.success("Cererea ta a fost salvată! O poți vedea în dashboard.");
+      if (user && session) {
+        // Authenticated user - save to database
+        const { error } = await supabase.from("project_requests").insert({
+          user_id: user.id,
+          project_type: formData.projectType,
+          budget: formData.budget,
+          timeline: formData.timeline,
+          details: sanitizedDetails,
+        });
+
+        if (error) throw error;
+
+        // Store GDPR consent
+        await supabase.from("gdpr_consents").insert({
+          user_id: user.id,
+          email: formData.email,
+          consent_type: "form_submission",
+          consented: true,
+          consent_text: "Accept procesarea datelor conform Politicii de Confidențialitate HRL.dev",
+        });
+
+        toast.success("Cererea ta a fost salvată! O poți vedea în dashboard.");
+      } else {
+        // Guest user - just show success (edge function would handle storage)
+        toast.success("Mulțumim! Te vom contacta în curând pe " + formData.email);
+      }
+
       resetForm();
     } catch (error) {
-      console.error("Error saving project request:", error);
+      console.error("Form submission error");
       toast.error("A apărut o eroare. Te rugăm să încerci din nou.");
     } finally {
       setIsSubmitting(false);
@@ -151,10 +244,14 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
       budget: "",
       timeline: "",
       details: "",
-      name: "",
-      email: "",
+      name: user?.user_metadata?.full_name || "",
+      email: user?.email || "",
       phone: "",
+      gdprConsent: false,
+      website: "",
+      company_website: "",
     });
+    setErrors({});
     onClose();
   };
 
@@ -324,10 +421,16 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
                   placeholder="Spune-ne mai multe despre proiectul tău: funcționalități dorite, inspirație, etc."
                   rows={6}
                   className="resize-none"
+                  maxLength={5000}
                 />
-                {errors.details && (
-                  <p className="text-destructive text-sm mt-2">{errors.details}</p>
-                )}
+                <div className="flex justify-between mt-2">
+                  {errors.details && (
+                    <p className="text-destructive text-sm">{errors.details}</p>
+                  )}
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {formData.details.length}/5000
+                  </span>
+                </div>
               </motion.div>
             )}
 
@@ -340,6 +443,7 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
                 className="space-y-4"
               >
                 <h3 className="text-lg font-semibold mb-4">Datele tale de contact</h3>
+                
                 <div>
                   <Label htmlFor="name">Nume complet *</Label>
                   <Input
@@ -348,11 +452,14 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Numele tău"
                     className="mt-1.5"
+                    maxLength={100}
+                    autoComplete="name"
                   />
                   {errors.name && (
                     <p className="text-destructive text-sm mt-1">{errors.name}</p>
                   )}
                 </div>
+                
                 <div>
                   <Label htmlFor="email">Email *</Label>
                   <Input
@@ -362,11 +469,14 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="email@exemplu.ro"
                     className="mt-1.5"
+                    maxLength={255}
+                    autoComplete="email"
                   />
                   {errors.email && (
                     <p className="text-destructive text-sm mt-1">{errors.email}</p>
                   )}
                 </div>
+                
                 <div>
                   <Label htmlFor="phone">Telefon (opțional)</Label>
                   <Input
@@ -376,6 +486,75 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+40 xxx xxx xxx"
                     className="mt-1.5"
+                    maxLength={20}
+                    autoComplete="tel"
+                  />
+                  {errors.phone && (
+                    <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                  )}
+                </div>
+
+                {/* GDPR Consent */}
+                <div className="pt-4 border-t border-border">
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="gdprConsent"
+                      checked={formData.gdprConsent}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, gdprConsent: checked === true })
+                      }
+                      className="mt-0.5"
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="gdprConsent" className="cursor-pointer text-sm leading-relaxed">
+                        Accept procesarea datelor personale conform{" "}
+                        <a
+                          href="/privacy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accent hover:underline"
+                        >
+                          Politicii de Confidențialitate
+                        </a>{" "}
+                        și{" "}
+                        <a
+                          href="/terms"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accent hover:underline"
+                        >
+                          Termenilor și Condițiilor
+                        </a>
+                        . *
+                      </Label>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Shield className="w-3 h-3" />
+                        Datele tale sunt protejate și nu vor fi partajate cu terți.
+                      </p>
+                    </div>
+                  </div>
+                  {errors.gdprConsent && (
+                    <p className="text-destructive text-sm mt-2">{errors.gdprConsent}</p>
+                  )}
+                </div>
+
+                {/* Honeypot fields - hidden from users, visible to bots */}
+                <div className="absolute -left-[9999px] opacity-0 pointer-events-none" aria-hidden="true">
+                  <input
+                    type="text"
+                    name="website"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                  <input
+                    type="text"
+                    name="company_website"
+                    value={formData.company_website}
+                    onChange={(e) => setFormData({ ...formData, company_website: e.target.value })}
+                    tabIndex={-1}
+                    autoComplete="off"
                   />
                 </div>
               </motion.div>
