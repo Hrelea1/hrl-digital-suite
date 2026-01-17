@@ -40,7 +40,7 @@ const Header = ({ onOpenForm }: HeaderProps) => {
     >
       <div className="container mx-auto flex items-center justify-between">
         <a href="#" className="flex items-center">
-          <img src={hrlLogo} alt="HRL.dev" className="h-8 md:h-10" />
+          <img src={hrlLogo} alt="HRL.dev" className="h-14 md:h-16" />
         </a>
 
         {/* Desktop Navigation */}
