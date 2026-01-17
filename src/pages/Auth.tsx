@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import hrlLogo from "@/assets/hrl-logo.svg";
 
 const emailSchema = z.string().email("Adresă de email invalidă");
 const passwordSchema = z.string().min(6, "Parola trebuie să aibă cel puțin 6 caractere");
@@ -96,17 +97,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
         {/* Logo */}
-        <a href="/" className="block text-center mb-8">
-          <span className="text-2xl font-bold text-primary-foreground">
-            HRL<span className="text-accent">.dev</span>
-          </span>
+        <a href="/" className="flex justify-center mb-8">
+          <img src={hrlLogo} alt="HRL.dev" className="h-12" />
         </a>
 
         {/* Auth Card */}

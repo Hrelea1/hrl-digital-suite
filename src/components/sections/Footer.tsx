@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import hrlLogo from "@/assets/hrl-logo.svg";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -20,15 +20,15 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-primary text-primary-foreground py-16">
+    <footer className="bg-card border-t border-border py-16">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <a href="#" className="text-2xl font-bold mb-4 block">
-              HRL<span className="text-accent">.dev</span>
+            <a href="#" className="block mb-4">
+              <img src={hrlLogo} alt="HRL.dev" className="h-10" />
             </a>
-            <p className="text-primary-foreground/70 mb-6 max-w-sm">
+            <p className="text-muted-foreground mb-6 max-w-sm">
               Digitalizăm afacerea ta cu soluții web și software personalizat. Partenerul tău de încredere pentru transformarea digitală.
             </p>
             <a
@@ -42,13 +42,13 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold mb-4">Servicii</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Servicii</h4>
             <ul className="space-y-3">
               {links.servicii.map((link, index) => (
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
@@ -58,13 +58,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Companie</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Companie</h4>
             <ul className="space-y-3">
               {links.companie.map((link, index) => (
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
@@ -75,15 +75,15 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/50">
+        <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
             © {currentYear} HRL.dev. Toate drepturile rezervate.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Politica de confidențialitate
             </a>
-            <a href="#" className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Termeni și condiții
             </a>
           </div>
