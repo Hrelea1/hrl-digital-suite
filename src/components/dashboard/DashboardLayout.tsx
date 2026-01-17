@@ -10,12 +10,11 @@ import {
   LogOut,
   Menu,
   X,
-  Moon,
-  Sun,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import hrlLogo from "@/assets/hrl-logo.svg";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -31,9 +30,6 @@ const navItems = [
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDark, setIsDark] = useState(
-    document.documentElement.classList.contains("dark")
-  );
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,11 +38,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     await signOut();
     toast.success("Te-ai deconectat cu succes!");
     navigate("/");
-  };
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
   };
 
   return (
@@ -72,8 +63,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       >
         {/* Logo */}
         <div className="p-6 border-b border-border flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold">
-            HRL<span className="text-accent">.dev</span>
+          <Link to="/">
+            <img src={hrlLogo} alt="HRL.dev" className="h-8" />
           </Link>
           <Button
             variant="ghost"
@@ -108,15 +99,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border space-y-2">
-          <Button
-            variant="ghost"
-            onClick={toggleTheme}
-            className="w-full justify-start gap-3"
-          >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            {isDark ? "Mod luminos" : "Mod întunecat"}
-          </Button>
+        <div className="p-4 border-t border-border">
           <Button
             variant="ghost"
             onClick={handleSignOut}

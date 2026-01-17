@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, User } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import hrlLogo from "@/assets/hrl-logo.svg";
 
 interface HeaderProps {
   onOpenForm: () => void;
@@ -12,7 +13,6 @@ interface HeaderProps {
 const Header = ({ onOpenForm }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -22,14 +22,6 @@ const Header = ({ onOpenForm }: HeaderProps) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDark]);
 
   const navLinks = [
     { href: "#acasa", label: "Acasă" },
@@ -47,8 +39,8 @@ const Header = ({ onOpenForm }: HeaderProps) => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between">
-        <a href="#" className="text-xl font-bold text-foreground">
-          HRL<span className="text-accent">.dev</span>
+        <a href="#" className="flex items-center">
+          <img src={hrlLogo} alt="HRL.dev" className="h-8 md:h-10" />
         </a>
 
         {/* Desktop Navigation */}
@@ -62,14 +54,6 @@ const Header = ({ onOpenForm }: HeaderProps) => {
               {link.label}
             </a>
           ))}
-          <Button
-            onClick={() => setIsDark(!isDark)}
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-          >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
           {user ? (
             <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/dashboard">
@@ -86,14 +70,6 @@ const Header = ({ onOpenForm }: HeaderProps) => {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 md:hidden">
-          <Button
-            onClick={() => setIsDark(!isDark)}
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-          >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -124,15 +100,26 @@ const Header = ({ onOpenForm }: HeaderProps) => {
                   {link.label}
                 </a>
               ))}
-              <Button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenForm();
-                }}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 mt-2"
-              >
-                Contactează-ne
-              </Button>
+              {user ? (
+                <Button
+                  asChild
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 mt-2"
+                >
+                  <Link to="/dashboard">
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="bg-accent text-accent-foreground hover:bg-accent/90 mt-2"
+                >
+                  <Link to="/auth">Autentificare</Link>
+                </Button>
+              )}
             </div>
           </motion.nav>
         )}
