@@ -1,12 +1,26 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import Header from "@/components/layout/Header";
+import Hero from "@/components/sections/Hero";
+import Services from "@/components/sections/Services";
+import About from "@/components/sections/About";
+import Pricing from "@/components/sections/Pricing";
+import Contact from "@/components/sections/Contact";
+import Footer from "@/components/sections/Footer";
+import FormFlow from "@/components/FormFlow";
 
 const Index = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header onOpenForm={() => setIsFormOpen(true)} />
+      <Hero onOpenForm={() => setIsFormOpen(true)} />
+      <Services />
+      <About />
+      <Pricing onOpenForm={() => setIsFormOpen(true)} />
+      <Contact />
+      <Footer />
+      <FormFlow isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
     </div>
   );
 };
