@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun } from "lucide-react";
+import { Menu, X, Moon, Sun, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   onOpenForm: () => void;
@@ -11,6 +13,7 @@ const Header = ({ onOpenForm }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,9 +70,18 @@ const Header = ({ onOpenForm }: HeaderProps) => {
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button onClick={onOpenForm} className="bg-accent text-accent-foreground hover:bg-accent/90">
-            Contactează-ne
-          </Button>
+          {user ? (
+            <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Link to="/dashboard">
+                <User className="h-4 w-4 mr-2" />
+                Dashboard
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Link to="/auth">Autentificare</Link>
+            </Button>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
