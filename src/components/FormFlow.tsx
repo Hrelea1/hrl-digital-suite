@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormFlowProps {
   isOpen: boolean;
@@ -43,7 +45,9 @@ const timelines = [
 ];
 
 const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     projectType: "",
     budget: "",
@@ -111,8 +115,36 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
     }
   };
 
-  const handleSubmit = () => {
-    toast.success("Cererea ta a fost trimisă cu succes! Te vom contacta în curând.");
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.success("Cererea ta a fost trimisă cu succes! Te vom contacta în curând.");
+      resetForm();
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("project_requests").insert({
+        user_id: user.id,
+        project_type: formData.projectType,
+        budget: formData.budget,
+        timeline: formData.timeline,
+        details: formData.details,
+      });
+
+      if (error) throw error;
+
+      toast.success("Cererea ta a fost salvată! O poți vedea în dashboard.");
+      resetForm();
+    } catch (error) {
+      console.error("Error saving project request:", error);
+      toast.error("A apărut o eroare. Te rugăm să încerci din nou.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
     setStep(1);
     setFormData({
       projectType: "",
@@ -364,11 +396,12 @@ const FormFlow = ({ isOpen, onClose }: FormFlowProps) => {
           </Button>
           <Button
             onClick={handleNext}
+            disabled={isSubmitting}
             className="bg-accent text-accent-foreground hover:bg-accent/90 gap-2"
           >
             {step === totalSteps ? (
               <>
-                Trimite
+                {isSubmitting ? "Se trimite..." : "Trimite"}
                 <Send className="w-4 h-4" />
               </>
             ) : (
