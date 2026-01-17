@@ -3,6 +3,10 @@ import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Globe, Code, Cloud, Wrench, ArrowUpRight } from "lucide-react";
 
+interface ServicesProps {
+  onOpenForm: () => void;
+}
+
 const services = [
   {
     icon: Globe,
@@ -34,7 +38,7 @@ const services = [
   },
 ];
 
-const Services = () => {
+const Services = ({ onOpenForm }: ServicesProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -65,6 +69,7 @@ const Services = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              onClick={onOpenForm}
               className="group relative bg-card rounded-2xl p-8 border border-border card-hover cursor-pointer overflow-hidden"
             >
               {/* Glow effect on hover */}
