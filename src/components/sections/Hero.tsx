@@ -42,7 +42,7 @@ const Hero = ({ onOpenForm }: HeroProps) => {
             className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
           >
             Digitalizăm afacerea ta cu{" "}
-            <span className="text-gradient">soluții web</span> și software
+            <span className="text-white font-extrabold">soluții web</span> și software
             personalizat
           </motion.h1>
 
