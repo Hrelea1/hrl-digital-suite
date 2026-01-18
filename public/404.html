@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HRL.dev | Redirectare...</title>
+    <script>
+      // GitHub Pages SPA redirect
+      // Redirects all 404 requests to index.html with hash routing
+      const path = window.location.pathname;
+      const base = '/hrl-digital-suite';
+      const route = path.replace(base, '') || '/';
+      window.location.replace(base + '/#' + route + window.location.search);
+    </script>
+  </head>
+  <body>
+    <p>Se redirecționează...</p>
+  </body>
+</html>
