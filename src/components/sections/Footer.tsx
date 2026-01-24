@@ -21,10 +21,10 @@ const Footer = () => {
 
   const links = {
     servicii: [
-      { label: "Site-uri web", id: "servicii" },
-      { label: "Aplicații software", id: "servicii" },
-      { label: "Soluții SaaS", id: "servicii" },
-      { label: "Mentenanță", id: "servicii" },
+      { label: "Site-uri web", to: "/servicii" },
+      { label: "Aplicații software", to: "/servicii" },
+      { label: "Soluții SaaS", to: "/servicii" },
+      { label: "Mentenanță", to: "/servicii" },
     ],
     companie: [
       { label: "Despre noi", id: "about" },
@@ -63,7 +63,7 @@ const Footer = () => {
                 <li key={index}>
                   <button
                     type="button"
-                    onClick={() => scrollToSection(link.id)}
+                    onClick={() => navigate(link.to)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
