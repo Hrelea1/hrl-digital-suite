@@ -26,10 +26,10 @@ const Header = ({ onOpenForm }: HeaderProps) => {
   }, []);
 
   const navLinks = [
-    { id: "acasa", label: "Acasă" },
-    { id: "servicii", label: "Servicii" },
-    { id: "about", label: "About Us" },
-    { id: "contact", label: "Contact" },
+    { type: "section" as const, id: "acasa", label: "Acasă" },
+    { type: "route" as const, to: "/servicii", label: "Servicii" },
+    { type: "section" as const, id: "about", label: "About Us" },
+    { type: "section" as const, id: "contact", label: "Contact" },
   ];
 
   const scrollToSection = async (id: string) => {
@@ -66,16 +66,26 @@ const Header = ({ onOpenForm }: HeaderProps) => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              type="button"
-              onClick={() => scrollToSection(link.id)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </button>
-          ))}
+          {navLinks.map((link) =>
+            link.type === "route" ? (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => scrollToSection(link.id)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </button>
+            ),
+          )}
           {user ? (
             <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/dashboard">
@@ -112,19 +122,30 @@ const Header = ({ onOpenForm }: HeaderProps) => {
             className="md:hidden glass-card mt-2 mx-4 rounded-lg overflow-hidden"
           >
             <div className="flex flex-col p-4 gap-3">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    scrollToSection(link.id);
-                  }}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                >
-                  {link.label}
-                </button>
-              ))}
+              {navLinks.map((link) =>
+                link.type === "route" ? (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.id}
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      scrollToSection(link.id);
+                    }}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {link.label}
+                  </button>
+                ),
+              )}
               {user ? (
                 <Button
                   asChild

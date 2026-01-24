@@ -15,6 +15,7 @@ import DashboardMessages from "./pages/DashboardMessages";
 import DashboardProjects from "./pages/DashboardProjects";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import ServicesPage from "./pages/ServicesPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <HashRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/servicii" element={<ServicesPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/profile" element={<DashboardProfile />} />
