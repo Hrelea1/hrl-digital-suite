@@ -1,17 +1,18 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import ContactFormFlow from "@/components/ContactFormFlow";
 
 const Contact = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const contactInfo = [
-    { icon: Mail, label: "Email", value: "contact@hrl.dev" },
+    { icon: Mail, label: "Email", value: "contact@hrldev.ro" },
     { icon: Phone, label: "Telefon", value: "+40 xxx xxx xxx" },
     { icon: MapPin, label: "Locație", value: "România" },
   ];
@@ -32,7 +33,7 @@ const Contact = () => {
             Hai să vorbim
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Ai un proiect în minte? Contactează-ne și hai să discutăm cum te putem ajuta.
+            Ai un proiect în minte? Completează formularul și îți răspundem în maxim 24 de ore.
           </p>
         </motion.div>
 
@@ -73,49 +74,33 @@ const Contact = () => {
             </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* CTA to open form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-card">
-              <h3 className="text-xl font-semibold mb-6">Trimite-ne un mesaj</h3>
-              <form className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Nume</label>
-                    <Input placeholder="Numele tău" className="bg-background" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Email</label>
-                    <Input type="email" placeholder="email@exemplu.ro" className="bg-background" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Subiect</label>
-                  <Input placeholder="Cu ce te putem ajuta?" className="bg-background" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Mesaj</label>
-                  <Textarea
-                    placeholder="Descrie pe scurt proiectul tău..."
-                    rows={5}
-                    className="bg-background resize-none"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Trimite mesajul
-                </Button>
-              </form>
+            <div className="bg-card rounded-2xl p-8 border border-border shadow-card h-full flex flex-col justify-center items-center text-center">
+              <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                <Mail className="w-10 h-10 text-accent" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Spune-ne ce ai nevoie</h3>
+              <p className="text-muted-foreground mb-6 max-w-sm">
+                Completează un scurt formular cu detaliile proiectului și îți trimitem o ofertă personalizată.
+              </p>
+              <Button
+                size="lg"
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
+                onClick={() => setIsFormOpen(true)}
+              >
+                Începe conversația
+              </Button>
             </div>
           </motion.div>
         </div>
       </div>
+
+      <ContactFormFlow isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
     </section>
   );
 };
