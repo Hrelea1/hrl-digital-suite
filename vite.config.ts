@@ -7,10 +7,9 @@ function getGitHubPagesBase(mode: string) {
   // In development we always want root paths.
   if (mode !== "production") return "/";
 
-  // GitHub Actions provides GITHUB_REPOSITORY="owner/repo".
-  // For project pages, the base must be "/repo/".
-  const repo = process.env.GITHUB_REPOSITORY?.split("/")?.[1];
-  return repo ? `/${repo}/` : "/";
+  // Use relative asset paths for maximum compatibility with GitHub Pages
+  // (works both on / and on /<repo>/ without hardcoding).
+  return "./";
 }
 
 // https://vitejs.dev/config/
