@@ -1,20 +1,24 @@
 import { motion } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface PackageCardProps {
+  id: string;
   name: string;
   price: number | null;
   description: string;
   features: string[];
   popular?: boolean;
   priceLabel?: string;
-  onSelect: () => void;
+  onSelect: (id: string, name: string) => void;
+  isLoading?: boolean;
+  loadingPackageId?: string | null;
 }
 
 const PackageCard = ({
+  id,
   name,
   price,
   description,
@@ -22,7 +26,10 @@ const PackageCard = ({
   popular = false,
   priceLabel,
   onSelect,
+  isLoading = false,
+  loadingPackageId,
 }: PackageCardProps) => {
+  const isThisLoading = isLoading && loadingPackageId === id;
   return (
     <Card
       className={`relative p-6 h-full flex flex-col transition-all duration-300 hover:shadow-lg ${
@@ -74,15 +81,30 @@ const PackageCard = ({
       </ul>
 
       <Button
-        onClick={onSelect}
+        onClick={() => onSelect(id, name)}
+        disabled={isLoading}
         className={`w-full group ${
           popular
             ? "bg-accent text-accent-foreground hover:bg-accent/90"
             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
         }`}
       >
-        Alege pachetul
-        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+        {isThisLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Se procesează...
+          </>
+        ) : price !== null ? (
+          <>
+            Cumpără acum
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          </>
+        ) : (
+          <>
+            Solicită ofertă
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          </>
+        )}
       </Button>
     </Card>
   );
