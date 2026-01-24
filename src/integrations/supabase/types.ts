@@ -149,6 +149,56 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string | null
+          id: string
+          package_id: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          id?: string
+          package_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          id?: string
+          package_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "service_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       package_contents: {
         Row: {
           content: Json
@@ -264,9 +314,12 @@ export type Database = {
       }
       purchased_packages: {
         Row: {
+          consultation_date: string | null
+          consultation_scheduled: boolean | null
           created_at: string
           end_date: string | null
           id: string
+          order_id: string | null
           package_id: string | null
           package_name: string
           package_type: string
@@ -276,9 +329,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          consultation_date?: string | null
+          consultation_scheduled?: boolean | null
           created_at?: string
           end_date?: string | null
           id?: string
+          order_id?: string | null
           package_id?: string | null
           package_name: string
           package_type: string
@@ -288,9 +344,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          consultation_date?: string | null
+          consultation_scheduled?: boolean | null
           created_at?: string
           end_date?: string | null
           id?: string
+          order_id?: string | null
           package_id?: string | null
           package_name?: string
           package_type?: string
@@ -300,6 +359,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "purchased_packages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchased_packages_package_id_fkey"
             columns: ["package_id"]
@@ -352,6 +418,7 @@ export type Database = {
           short_description: string | null
           slug: string
           sort_order: number
+          stripe_price_id: string | null
           updated_at: string
         }
         Insert: {
@@ -366,6 +433,7 @@ export type Database = {
           short_description?: string | null
           slug: string
           sort_order?: number
+          stripe_price_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -380,6 +448,7 @@ export type Database = {
           short_description?: string | null
           slug?: string
           sort_order?: number
+          stripe_price_id?: string | null
           updated_at?: string
         }
         Relationships: []

@@ -16,6 +16,8 @@ import DashboardProjects from "./pages/DashboardProjects";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import ServicesPage from "./pages/ServicesPage";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutCancel from "./pages/CheckoutCancel";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ const App = () => (
               <Route path="/dashboard/packages" element={<DashboardPackages />} />
               <Route path="/dashboard/messages" element={<DashboardMessages />} />
               <Route path="/dashboard/projects" element={<DashboardProjects />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
+              <Route path="/checkout/cancel" element={<CheckoutCancel />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

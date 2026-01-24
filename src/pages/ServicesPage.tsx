@@ -6,6 +6,8 @@ import Footer from "@/components/sections/Footer";
 import ServiceSection from "@/components/services/ServiceSection";
 import ContactFormFlow from "@/components/ContactFormFlow";
 import { useAllServicePackages, ServiceCategory } from "@/hooks/useServicePackages";
+import { useCheckout } from "@/hooks/useCheckout";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowRight,
   BadgeCheck,
@@ -21,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/hooks/use-toast";
 
 const serviceCategories = [
   {
@@ -88,7 +91,10 @@ export default function ServicesPage() {
   const location = useLocation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("website");
+  const [loadingPackageId, setLoadingPackageId] = useState<string | null>(null);
   const { data: packages, isLoading } = useAllServicePackages();
+  const { initiateCheckout, checkPendingCheckout, isLoading: checkoutLoading } = useCheckout();
+  const { user } = useAuth();
 
   // Scroll to hash on load
   useEffect(() => {
@@ -154,8 +160,30 @@ export default function ServicesPage() {
     });
   };
 
-  const handleSelectPackage = (packageName: string) => {
-    setIsFormOpen(true);
+  // Check for pending checkout after login
+  useEffect(() => {
+    if (user) {
+      checkPendingCheckout();
+    }
+  }, [user]);
+
+  const handleSelectPackage = async (packageId: string, packageName: string) => {
+    // Find the package to check if it has a price
+    const pkg = packages?.find(p => p.id === packageId);
+    
+    if (!pkg?.price) {
+      // Package requires custom quote - open contact form
+      toast({
+        title: "Ofertă personalizată",
+        description: "Acest pachet necesită o ofertă personalizată. Completează formularul și te contactăm.",
+      });
+      setIsFormOpen(true);
+      return;
+    }
+
+    setLoadingPackageId(packageId);
+    await initiateCheckout(packageId, packageName);
+    setLoadingPackageId(null);
   };
 
   return (
@@ -239,6 +267,8 @@ export default function ServicesPage() {
               icon={cat.icon}
               packages={packagesByCategory[cat.category] || []}
               onSelectPackage={handleSelectPackage}
+              isLoading={checkoutLoading}
+              loadingPackageId={loadingPackageId}
             />
           ))
         )}

@@ -17,7 +17,9 @@ interface ServiceSectionProps {
   description: string;
   icon: LucideIcon;
   packages: Package[];
-  onSelectPackage: (packageName: string) => void;
+  onSelectPackage: (packageId: string, packageName: string) => void;
+  isLoading?: boolean;
+  loadingPackageId?: string | null;
 }
 
 const container = {
@@ -40,6 +42,8 @@ const ServiceSection = ({
   icon: Icon,
   packages,
   onSelectPackage,
+  isLoading = false,
+  loadingPackageId,
 }: ServiceSectionProps) => {
   // Determine popular package (middle one if 3 packages)
   const popularIndex = packages.length === 3 ? 1 : -1;
@@ -81,13 +85,16 @@ const ServiceSection = ({
             .map((pkg, index) => (
               <motion.div key={pkg.id} variants={item}>
                 <PackageCard
+                  id={pkg.id}
                   name={pkg.name}
                   price={pkg.price}
                   description={pkg.short_description || ""}
                   features={pkg.features}
                   popular={index === popularIndex}
                   priceLabel={id === "maintenance" ? "/lună" : undefined}
-                  onSelect={() => onSelectPackage(pkg.name)}
+                  onSelect={onSelectPackage}
+                  isLoading={isLoading}
+                  loadingPackageId={loadingPackageId}
                 />
               </motion.div>
             ))}
