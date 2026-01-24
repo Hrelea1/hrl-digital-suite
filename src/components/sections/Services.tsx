@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { Globe, Code, Cloud, Wrench, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ServicesProps {
   onOpenForm: () => void;
@@ -103,6 +105,12 @@ const Services = ({ onOpenForm }: ServicesProps) => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <Link to="/servicii">Vezi mai multe</Link>
+          </Button>
         </div>
       </div>
     </section>
