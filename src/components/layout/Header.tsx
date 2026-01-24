@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ const Header = ({ onOpenForm }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,11 +26,26 @@ const Header = ({ onOpenForm }: HeaderProps) => {
   }, []);
 
   const navLinks = [
-    { href: "#acasa", label: "Acasă" },
-    { href: "#servicii", label: "Servicii" },
-    { href: "#about", label: "About Us" },
-    { href: "#contact", label: "Contact" },
+    { type: "section" as const, id: "acasa", label: "Acasă" },
+    { type: "route" as const, to: "/servicii", label: "Servicii" },
+    { type: "section" as const, id: "about", label: "About Us" },
+    { type: "section" as const, id: "contact", label: "Contact" },
   ];
+
+  const scrollToSection = async (id: string) => {
+    // If we're not on home, first navigate there (HashRouter-safe) then scroll.
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+
+    // Wait a tick for the DOM to be ready after navigation.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    });
+  };
 
   return (
     <header
@@ -39,21 +56,36 @@ const Header = ({ onOpenForm }: HeaderProps) => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between">
-        <a href="#" className="flex items-center">
+        <button
+          type="button"
+          onClick={() => scrollToSection("acasa")}
+          className="flex items-center"
+        >
           <img src={hrlLogo} alt="HRL.dev" className="h-20 md:h-24" />
-        </a>
+        </button>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.type === "route" ? (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => scrollToSection(link.id)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </button>
+            ),
+          )}
           {user ? (
             <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
               <Link to="/dashboard">
@@ -90,16 +122,30 @@ const Header = ({ onOpenForm }: HeaderProps) => {
             className="md:hidden glass-card mt-2 mx-4 rounded-lg overflow-hidden"
           >
             <div className="flex flex-col p-4 gap-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.type === "route" ? (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.id}
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      scrollToSection(link.id);
+                    }}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                  >
+                    {link.label}
+                  </button>
+                ),
+              )}
               {user ? (
                 <Button
                   asChild

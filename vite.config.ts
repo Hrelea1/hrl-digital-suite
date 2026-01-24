@@ -3,9 +3,18 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+function getGitHubPagesBase(mode: string) {
+  // In development we always want root paths.
+  if (mode !== "production") return "/";
+
+  // Use relative asset paths for maximum compatibility with GitHub Pages
+  // (works both on / and on /<repo>/ without hardcoding).
+  return "./";
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/hrl-digital-suite/",
+  base: getGitHubPagesBase(mode),
   server: {
     host: "::",
     port: 8080,

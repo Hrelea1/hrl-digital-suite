@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HRL.dev | Redirectare...</title>
+    <script>
+      // GitHub Pages SPA redirect
+      // Redirects all 404 requests to index.html with hash routing
+      const path = window.location.pathname;
+      const segments = path.split('/').filter(Boolean);
+
+      // For project pages: "/<repo>/..." => base="/<repo>"
+      // For user pages/custom domains: "/..." => base=""
+      const first = segments[0] || '';
+      const base = first.includes('.') ? '' : '/' + first;
+
+      const route = base ? path.replace(base, '') || '/' : path || '/';
+      window.location.replace(base + '/#' + route + window.location.search);
+    </script>
+  </head>
+  <body>
+    <p>Se redirecționează...</p>
+  </body>
+</html>
