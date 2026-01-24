@@ -50,6 +50,36 @@ export type Database = {
         }
         Relationships: []
       }
+      faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          is_active: boolean
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gdpr_consents: {
         Row: {
           consent_text: string
@@ -118,6 +148,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      package_contents: {
+        Row: {
+          content: Json
+          content_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          package_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          package_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          package_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_contents_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "service_packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -193,6 +267,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           id: string
+          package_id: string | null
           package_name: string
           package_type: string
           price: number
@@ -204,6 +279,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          package_id?: string | null
           package_name: string
           package_type: string
           price: number
@@ -215,6 +291,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          package_id?: string | null
           package_name?: string
           package_type?: string
           price?: number
@@ -222,7 +299,15 @@ export type Database = {
           status?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "purchased_packages_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "service_packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limit_attempts: {
         Row: {
@@ -251,6 +336,48 @@ export type Database = {
           id?: string
           identifier?: string
           last_attempt_at?: string
+        }
+        Relationships: []
+      }
+      service_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean
+          name: string
+          price: number | null
+          short_description: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number | null
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number | null
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
