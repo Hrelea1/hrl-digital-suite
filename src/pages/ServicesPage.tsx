@@ -1,45 +1,152 @@
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/sections/Footer";
+import ServiceSection from "@/components/services/ServiceSection";
+import ContactFormFlow from "@/components/ContactFormFlow";
+import { useAllServicePackages, ServiceCategory } from "@/hooks/useServicePackages";
 import {
   ArrowRight,
   BadgeCheck,
   Braces,
   Globe,
   LineChart,
+  Palette,
   ShieldCheck,
-  Sparkles,
   Timer,
   Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+const serviceCategories = [
+  {
+    id: "website",
+    title: "Creare site-uri web",
+    description: "Site-uri moderne, rapide și optimizate pentru conversii. De la landing pages la platforme complexe de e-commerce.",
+    icon: Globe,
+    category: "website" as ServiceCategory,
   },
-};
+  {
+    id: "seo",
+    title: "SEO - Optimizare pentru motoare de căutare",
+    description: "Crești vizibilitatea în Google și atragi trafic organic de calitate. Audit, optimizare și monitorizare continuă.",
+    icon: LineChart,
+    category: "seo" as ServiceCategory,
+  },
+  {
+    id: "graphic-design",
+    title: "Grafic Design",
+    description: "Identitate vizuală memorabilă care reflectă valorile brandului tău. Logo, branding complet și materiale pentru social media.",
+    icon: Palette,
+    category: "graphic_design" as ServiceCategory,
+  },
+  {
+    id: "maintenance",
+    title: "Mentenanță & Suport Tehnic",
+    description: "Asigurăm funcționarea optimă a site-ului tău cu monitorizare, backup-uri și suport tehnic rapid.",
+    icon: Wrench,
+    category: "maintenance" as ServiceCategory,
+  },
+];
 
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0 },
-};
+const steps = [
+  {
+    title: "Discovery & brief",
+    desc: "Clarificăm scopul, riscurile, deadline-ul și criteriile de succes.",
+    icon: BadgeCheck,
+  },
+  {
+    title: "Prototip & arhitectură",
+    desc: "Propunem flow-uri + schemă tehnică; alegem varianta cu impact maxim.",
+    icon: Braces,
+  },
+  {
+    title: "Implementare & testare",
+    desc: "Livrăm incremental, cu validări, audit, și QA orientat pe utilizare reală.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Lansare & iterare",
+    desc: "Monitorizare + optimizări pe bază de date (performanță, conversie, stabilitate).",
+    icon: Timer,
+  },
+] as const;
+
+const navItems = [
+  { id: "website", label: "Website" },
+  { id: "seo", label: "SEO" },
+  { id: "graphic-design", label: "Design" },
+  { id: "maintenance", label: "Mentenanță" },
+];
 
 export default function ServicesPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("website");
+  const { data: packages, isLoading } = useAllServicePackages();
+
+  // Scroll to hash on load
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+          setActiveSection(id);
+        }
+      }, 100);
+    }
+  }, [location.hash]);
+
+  // Track active section on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    serviceCategories.forEach((cat) => {
+      const element = document.getElementById(cat.id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Group packages by category
+  const packagesByCategory = useMemo(() => {
+    if (!packages) return {};
+    return packages.reduce((acc, pkg) => {
+      const cat = pkg.category;
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(pkg);
+      return acc;
+    }, {} as Record<ServiceCategory, typeof packages>);
+  }, [packages]);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const goToContact = () => {
-    // Contact is a section on home page.
     if (location.pathname !== "/") {
       navigate("/");
     }
-
     requestAnimationFrame(() => {
       setTimeout(() => {
         document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -47,72 +154,13 @@ export default function ServicesPage() {
     });
   };
 
-  const services = [
-    {
-      title: "Website-uri rapide & SEO-ready",
-      desc: "Landing pages și site-uri de prezentare cu performanță, accesibilitate și structură SEO corectă.",
-      icon: Globe,
-      bullets: ["UI modern, responsive", "Viteză + Core Web Vitals", "Structură SEO + tracking"],
-    },
-    {
-      title: "Aplicații web (Dashboard, Admin, Client Portal)",
-      desc: "Sisteme cu autentificare, roluri, date sensibile și fluxuri clare pentru utilizatori.",
-      icon: ShieldCheck,
-      bullets: ["RBAC (user/client/admin)", "Izolare pe user + audit trail", "UX pentru operațiuni zilnice"],
-    },
-    {
-      title: "Automatizări & integrări",
-      desc: "Conectăm tool-urile tale și automatizăm procese (lead intake, notificări, raportări).",
-      icon: Sparkles,
-      bullets: ["Webhook-uri + validare", "Rate limiting & anti-abuse", "Loguri & alerte"],
-    },
-    {
-      title: "MVP / Product Engineering",
-      desc: "De la idee la produs: arhitectură, livrare iterativă, stabilitate și scalare.",
-      icon: Braces,
-      bullets: ["Roadmap pe sprinturi", "Design system + consistență", "Instrumentare + metrici"],
-    },
-    {
-      title: "Optimizare & mentenanță",
-      desc: "Îmbunătățim un produs existent: performanță, stabilitate, securitate, costuri.",
-      icon: Wrench,
-      bullets: ["Bugfix & hardening", "Refactor controlat", "Monitorizare și mentenanță"],
-    },
-    {
-      title: "Analitică & conversie",
-      desc: "Măsurăm ce contează și iterăm pentru conversie: funnel-uri, evenimente, A/B (când are sens).",
-      icon: LineChart,
-      bullets: ["Tracking pe evenimente", "Raportare clară", "Iterații orientate pe ROI"],
-    },
-  ] as const;
-
-  const steps = [
-    {
-      title: "Discovery & brief",
-      desc: "Clarificăm scopul, riscurile, deadline-ul și criteriile de succes.",
-      icon: BadgeCheck,
-    },
-    {
-      title: "Prototip & arhitectură",
-      desc: "Propunem flow-uri + schemă tehnică; alegem varianta cu impact maxim.",
-      icon: Braces,
-    },
-    {
-      title: "Implementare & testare",
-      desc: "Livrăm incremental, cu validări, audit, și QA orientat pe utilizare reală.",
-      icon: ShieldCheck,
-    },
-    {
-      title: "Lansare & iterare",
-      desc: "Monitorizare + optimizări pe bază de date (performanță, conversie, stabilitate).",
-      icon: Timer,
-    },
-  ] as const;
+  const handleSelectPackage = (packageName: string) => {
+    setIsFormOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Reuse existing header; CTA for this page is contact */}
-      <Header onOpenForm={goToContact} />
+      <Header onOpenForm={() => setIsFormOpen(true)} />
 
       <main className="pt-28">
         {/* Hero */}
@@ -125,71 +173,75 @@ export default function ServicesPage() {
               transition={{ duration: 0.5 }}
               className="max-w-3xl"
             >
-              <p className="text-sm font-medium text-muted-foreground">Servicii</p>
+              <p className="text-sm font-medium text-muted-foreground">Servicii & Pachete</p>
               <h1 className="mt-3 text-4xl md:text-5xl font-extrabold tracking-tight">
-                Construim produse web care arată bine, se mișcă rapid și sunt securizate.
+                Alege pachetul potrivit pentru afacerea ta
               </h1>
               <p className="mt-5 text-muted-foreground text-lg leading-relaxed">
-                Pagina asta e gândită ca un meniu clar: ce facem, pentru cine e și cum lucrăm — fără
-                „marketing fluff”, doar lucruri livrabile.
+                De la site-uri web și SEO la branding și mentenanță — avem soluții clare, cu prețuri
+                transparente și livrabile concrete.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={goToContact}>
                   Hai să discutăm
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                <Button variant="secondary" onClick={() => navigate("/dashboard")}
-                  className="justify-center"
-                >
-                  Vezi dashboard
-                </Button>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Services grid */}
-        <section className="py-16">
+        {/* Sticky Navigation */}
+        <div className="sticky top-16 z-40 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="container mx-auto">
-            <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
-              <motion.div variants={item} className="mb-10">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Ce includ serviciile</h2>
-                <p className="mt-3 text-muted-foreground max-w-2xl">
-                  Carduri detaliate, ca să poți alege rapid direcția potrivită.
-                </p>
-              </motion.div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {services.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <motion.div key={s.title} variants={item}>
-                      <Card className="glass-card shadow-soft p-6 h-full">
-                        <div className="flex items-start gap-4">
-                          <div className="h-11 w-11 rounded-lg bg-secondary flex items-center justify-center">
-                            <Icon className="h-5 w-5 text-foreground" />
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-lg leading-snug">{s.title}</h3>
-                            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                          </div>
-                        </div>
-                        <ul className="mt-5 space-y-2">
-                          {s.bullets.map((b) => (
-                            <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <BadgeCheck className="h-4 w-4 mt-0.5 text-accent" />
-                              <span>{b}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
+            <nav className="flex gap-1 py-3 overflow-x-auto scrollbar-hide">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeSection === item.id
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
           </div>
-        </section>
+        </div>
+
+        {/* Service Sections */}
+        {isLoading ? (
+          <div className="container mx-auto py-16">
+            <div className="space-y-16">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="space-y-6">
+                  <Skeleton className="h-10 w-64" />
+                  <Skeleton className="h-6 w-96" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Skeleton className="h-80" />
+                    <Skeleton className="h-80" />
+                    <Skeleton className="h-80" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          serviceCategories.map((cat) => (
+            <ServiceSection
+              key={cat.id}
+              id={cat.id}
+              title={cat.title}
+              description={cat.description}
+              icon={cat.icon}
+              packages={packagesByCategory[cat.category] || []}
+              onSelectPackage={handleSelectPackage}
+            />
+          ))
+        )}
 
         {/* Process */}
         <section className="py-16 bg-muted/30">
@@ -247,7 +299,14 @@ export default function ServicesPage() {
                   <AccordionTrigger>Cât de repede putem lansa?</AccordionTrigger>
                   <AccordionContent>
                     Depinde de complexitate, dar pentru un MVP realist țintim livrări incremental (săptămânal) și o
-                    lansare rapidă a unui prim „slice” utilizabil.
+                    lansare rapidă a unui prim „slice" utilizabil.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>Ce include prețul afișat?</AccordionTrigger>
+                  <AccordionContent>
+                    Prețurile afișate sunt orientative și includ tot ce e listat în features. Pentru proiecte custom,
+                    facem o estimare personalizată după discovery.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -265,8 +324,8 @@ export default function ServicesPage() {
                   Spune-ne obiectivul și contextul. Îți răspundem cu pași clari și o propunere realistă.
                 </p>
               </div>
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={goToContact}>
-                Contact
+              <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={() => setIsFormOpen(true)}>
+                Începe un proiect
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -275,6 +334,8 @@ export default function ServicesPage() {
       </main>
 
       <Footer />
+
+      <ContactFormFlow isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
     </div>
   );
 }
