@@ -1,14 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Rocket, Target, Lightbulb, Heart } from "lucide-react";
-
-const values = [
-  { icon: Rocket, title: "Ambiție", description: "Suntem la început, dar visăm mare. Fiecare proiect este o oportunitate de a demonstra ce putem." },
-  { icon: Target, title: "Precizie", description: "Livrăm soluții bine gândite, cu atenție la detalii și la nevoile reale ale clienților." },
-  { icon: Lightbulb, title: "Inovație", description: "Folosim cele mai noi tehnologii și abordări pentru a crea produse digitale moderne." },
-  { icon: Heart, title: "Dedicare", description: "Tratăm fiecare proiect ca și cum ar fi al nostru. Succesul tău este succesul nostru." },
-];
+import { Rocket, Target, Eye, Users } from "lucide-react";
 
 const About = () => {
   const ref = useRef(null);
@@ -28,58 +21,78 @@ const About = () => {
             Despre noi
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mt-3 mb-4">
-            Povestea noastră
+            Cine suntem
           </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Suntem un start-up proaspăt lansat, cu o echipă mică dar ambițioasă, gata să transforme ideile tale în realitate digitală.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column - Story */}
+        {/* Echipa */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-16"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Users className="w-6 h-6 text-accent" />
+            <h3 className="text-2xl font-semibold">Echipa</h3>
+          </div>
+          <p className="text-muted-foreground leading-relaxed max-w-3xl">
+            Suntem o echipă tânără de dezvoltatori și designeri uniți de aceeași pasiune: tehnologia. Fiecare membru aduce experiență, creativitate și dedicare, iar împreună construim soluții digitale de care suntem mândri. Chiar dacă suntem la început de drum, energia și dorința de a demonstra ce putem ne definesc.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          {/* Misiune */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-card rounded-xl p-8 border border-border hover:border-accent/30 transition-colors"
           >
-            <h3 className="text-2xl font-semibold mb-4">Un start-up cu viziune</h3>
-            <p className="text-muted-foreground mb-4 leading-relaxed">
-              HRL.dev s-a născut din dorința de a face tehnologia accesibilă pentru toți. Suntem o echipă tânără de dezvoltatori și designeri care cred că fiecare afacere merită o prezență digitală de calitate, indiferent de dimensiune sau buget.
-            </p>
-            <p className="text-muted-foreground mb-4 leading-relaxed">
-              Abia ne-am lansat, dar venim cu energie, idei proaspete și o pasiune autentică pentru ceea ce facem. Fiecare client care ne alege acum devine parte din povestea noastră de la început.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Misiunea noastră:</strong> Să oferim soluții digitale accesibile, moderne și personalizate — de la site-uri web și aplicații, până la identitate vizuală și strategii digitale.
-            </p>
-
-            <div className="mt-8 p-5 rounded-xl bg-accent/10 border border-accent/20">
-              <p className="text-sm text-accent font-medium mb-1">💡 De ce să lucrezi cu un start-up?</p>
-              <p className="text-sm text-muted-foreground">
-                Primești atenție 100% dedicată proiectului tău, prețuri corecte pentru un serviciu premium, și o echipă care chiar vrea să demonstreze ce poate.
-              </p>
+            <div className="flex items-center gap-3 mb-4">
+              <Target className="w-8 h-8 text-accent" />
+              <h3 className="text-2xl font-semibold">Misiune</h3>
             </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Să oferim soluții digitale accesibile, moderne și personalizate pentru afaceri de toate dimensiunile. Credem că fiecare business merită o prezență online de calitate, iar noi suntem aici să facem asta posibil — rapid, eficient și la prețuri corecte.
+            </p>
           </motion.div>
 
-          {/* Right Column - Values */}
+          {/* Viziune */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-card rounded-xl p-8 border border-border hover:border-accent/30 transition-colors"
           >
-            {values.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.3 + index * 0.1 }}
-                className="bg-card rounded-xl p-5 border border-border hover:border-accent/30 transition-colors"
-              >
-                <item.icon className="w-8 h-8 text-accent mb-3" />
-                <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </motion.div>
-            ))}
+            <div className="flex items-center gap-3 mb-4">
+              <Eye className="w-8 h-8 text-accent" />
+              <h3 className="text-2xl font-semibold">Viziune</h3>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Să devenim partenerul de încredere al antreprenorilor din România care vor să-și digitalizeze afacerea. Ne dorim ca în câțiva ani, HRL.dev să fie sinonim cu calitate, inovație și accesibilitate în lumea dezvoltării web și software.
+            </p>
           </motion.div>
         </div>
+
+        {/* Portofoliu - În curând */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="text-center"
+        >
+          <div className="bg-card rounded-xl p-12 border border-dashed border-accent/30">
+            <Rocket className="w-12 h-12 text-accent mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold mb-2">Portofoliu</h3>
+            <p className="text-muted-foreground text-lg">
+              În curând — primele noastre proiecte vor apărea aici.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
